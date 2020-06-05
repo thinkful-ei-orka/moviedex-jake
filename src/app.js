@@ -3,11 +3,18 @@ const express = require('express');
 const morgan = require('morgan');
 const cors = require('cors');
 const helmet = require('helmet');
-const movieList = require('./moviedex.js');
+const movieList = require('../moviedex.js');
 const app = express();
 app.use(morgan('dev'));
 app.use(helmet());
 app.use(cors());
+
+const {NODE_ENV} = require('./config');
+
+const morganOption = (NODE_ENV === 'production')
+    ? 'tiny'
+    : 'common';
+app.use(morgan(morganOption));
 app.use(function validateBearerToken(req, res, next) {
 
     const apiToken = process.env.API_TOKEN;
@@ -20,9 +27,6 @@ app.use(function validateBearerToken(req, res, next) {
 
 
 app.get('/movies', handleGetMovies);
-
-
-
 
 function handleGetMovies (req, res) {
     //Search options for genre, country, avg_vote are provided in query string
